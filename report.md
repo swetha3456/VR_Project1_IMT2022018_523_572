@@ -23,62 +23,90 @@ The following datasets are used in this project:
 
 ### Thresholding-Based Segmentation
 
-We explored thresholding techniques for mask segmentation, including basic and adaptive thresholding:
+We explored Otsu’s thresholding for mask segmentation:
 
-1. **Basic Thresholding**:
+1. **Preprocessing**:
+   - Resize the image to `(256, 256)`.
    - Convert the image to grayscale.
-   - Apply a fixed threshold (`127/255`) to segment mask regions.
-   - Invert the binary mask for better visualization.
-2. **Adaptive Thresholding**:
-   - Convert the image to grayscale.
-   - Apply Adaptive Gaussian Thresholding with block size `11` and constant `2`.
-   - This method adjusts thresholds dynamically based on local pixel intensity variations.
+   - Apply Gaussian blur to reduce noise.
+2. **Otsu’s Thresholding**:
+   - Apply Otsu’s method to determine an optimal threshold dynamically.
+   - Generate a binary mask based on the threshold value.
 
-The IoU and dice results were extremely poor.
-
+While Otsu’s thresholding is effective for simple segmentation tasks, it struggled with varying lighting conditions and complex backgrounds, leading to poor segmentation results.
 
 ### Clustering-Based Segmentation
 
 We used K-Means clustering to segment face masks based on color information:
 
-1. **Color Space Conversion**: The image is converted from BGR to LAB color space, which is more effective for clustering due to its perceptual uniformity.
-2. **K-Means Clustering**: The LAB pixel values are reshaped and clustered into `n_clusters=3` using K-Means.
-3. **Largest Cluster Selection**: After clustering, the largest cluster is identified based on pixel count.
-4. **Binary Mask Creation**: A binary mask is generated where pixels belonging to the largest cluster are set to 255, and others to 0.
+1. **Color Space Conversion**: Convert the image from BGR to LAB color space for better clustering performance.
+2. **K-Means Clustering**:
+   - Reshape pixel values and apply K-Means clustering with `n_clusters=3`.
+   - Assign each pixel to one of the three clusters.
+3. **Largest Cluster Selection**:
+   - Identify the largest cluster by pixel count.
+   - Create a binary mask where pixels belonging to the largest cluster are set to `255`, and others to `0`.
 
-K-Means effectively separates different color regions without requiring manual thresholding. However, it  struggled with lighting variations or images where the face and mask are similarly coloured.
-
-
-Mean IoU: 0.3406
-
-Mean dice: 0.0018
+K-Means segmented mask regions without requiring manual/Otsu's thresholding. However, it struggled in cases where the mask color was similar to the skin tone or background.
+ 
 
 ### Watershed Segmentation
 
-A region-based segmentation approach using the Watershed algorithm was followed. The following steps were done:
+A region-based segmentation approach using the Watershed algorithm was employed:
 
 1. **Preprocessing**:
    - Convert the image to grayscale.
-   - Detect edges using the Canny edge detector.
+   - Apply Canny edge detection.
    - Fill detected edges using binary region filling.
 2. **Elevation Map Computation**:
-   - Apply Sobel filtering to compute an elevation map that highlights edges and gradients in the image.
+   - Apply Gaussian filtering.
+   - Compute an elevation map using the Sobel operator.
 3. **Marker Creation**:
-   - Define foreground and background markers based on pixel intensity thresholds.
-   - Assign three marker values: background, transition, and foreground (mask region).
+   - Assign markers to background, uncertain regions, and foreground (mask area) based on intensity thresholds.
 4. **Watershed Algorithm**:
-   - Apply the watershed segmentation to separate different regions based on the elevation map.
+   - Apply Watershed segmentation to separate regions based on elevation gradients.
+   - Extract the whitest region as the mask.
 
-Watershed segmentation required well-defined markers and failed in cases of poor contrast or overlapping regions.
+Watershed worked better than previous methods. But it required well-defined markers and failed in cases of poor contrast or overlapping regions, leading to limited segmentation performance.
 
-Mean IoU: 0.3333
-Mean Dice: 0.4452
+
+### GrabCut Segmentation
+
+GrabCut, an iterative graph-cut-based segmentation method, was used:
+
+1. **Preprocessing**:
+   - Resize the image.
+   - Define a bounding box slightly inside the image border.
+2. **GrabCut Application**:
+   - Initialize a binary mask and background/foreground models.
+   - Apply the GrabCut algorithm iteratively with `GC_INIT_WITH_RECT`.
+3. **Binary Mask Extraction**:
+   - Convert the result to a binary mask, marking foreground pixels as `255` and background as `0`.
+
+GrabCut produced better results than the previous methods by leveraging iterative refinement. However, it still exhibited challenges in distinguishing face masks as compared to deep learning-based methods.
+
+
 
 ### Results
 
-IoU for Clustering & Watershed: ~0.3 (both methods performed similarly in overlap with ground truth).
+#### Thresholding
 
-Dice Score: Watershed performed better (~0.4). It captured the shape of the mask regions more effectively than clustering.
+- **Mean IoU:** 0.2800
+- **Mean Dice:** 0.0015 
+
+#### Clustering
+- **Mean IoU:** 0.3406  
+- **Mean Dice:** 0.0018 
+
+#### Watershed
+- **Mean IoU:** 0.3168  
+- **Mean Dice:** 0.4373
+
+#### GrabCut
+- **Mean IoU:** 0.5569 
+- **Mean Dice:** 0.6968  
+
+
 
 ---
 ## How to Run the Code
