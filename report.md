@@ -18,6 +18,31 @@ The following datasets are used in this project:
 
 ---
 
+## Mask Segmentation Using Traditional Methods
+
+### Preprocessing
+
+- Each image is resized to 128x128 and converted into grayscale before feature extraction.  
+- The extracted HOG and LBP histogram features are combined into a single feature vector. 
+- The feature vectors are normalized using StandardScaler.
+- The dataset is split into training and testing sets with stratified sampling to maintain class balance.
+
+### Methodology and Observations
+
+We extracted features from the resized grayscale face mask images using Histogram of Oriented Gradients (HOG) and Local Binary Patterns (LBP). HOG captures gradient-based texture information, while LBP encodes local texture patterns. We used these features to train a model that predicts whether or not a mask is worn.
+
+### Hyperparameters and Experiments
+
+We experimented with two models, SVM and XGBoost. SVM with a linear kernel gave an accuracy of 90%, whereas a polynomial kernel gave an accuracy of 91%. 
+
+XGBoost gave us the best accuracy, 92.67%. 
+
+## Results
+
+Classification accuracy: 92.67%
+
+---
+
 ## CNN-Based Image Classification with Data Augmentation and Hyperparameter Tuning
 
 **Training and evaluating CNN models** for image classification. The dataset is split into **train, validation, and test sets**. To improve model robustness, **data augmentation** is applied to generate transformed images, making the model invariant to rotations, translations, and other transformations.  
@@ -50,7 +75,7 @@ The models were evaluated based on  **Accuracy** and **Loss**
 
 ## **Hyperparameters and Experiments**
 
-The parametes considered are number of layers, batch size, learning rate, optimizer types
+The parameters considered are number of layers, batch size, learning rate, optimizer types
 
 - **Different number of convolutional layers** (3, 4, 5 layers).
    ![image](https://github.com/user-attachments/assets/168d86ab-1462-498c-99f6-bd42204c374e)
@@ -62,7 +87,7 @@ The parametes considered are number of layers, batch size, learning rate, optimi
   ![image](https://github.com/user-attachments/assets/f652d025-d3b6-4fea-9047-387ef49fea4c)
 
 
-For each paramerets 3 models were trained and compared using plots for accuracy and loss.
+For each parameters 3 models were trained and compared using plots for accuracy and loss.
 
 ---
 
@@ -80,6 +105,9 @@ The test accuracies obtained for with all the parameters is given as"
 
 The best model can be build with 4 layers, 0.001 learning rate, Adam optimizer and batch size of 64. The accuracy obtained was - 0.961.
 
+## Analysis
+
+We observed that traditional feature-based methods, while computationally efficient, rely heavily on handcrafted feature selection, which may not capture the full complexity of mask variations. XGBoost performed slightly better than SVM, suggesting that ensemble methods can leverage weakly correlated features more effectively. However, the CNN-based approach outperformed both, demonstrating that automated feature extraction is more robust against variations in lighting, texture, and positioning. Through hyperparameter tuning, we found that a moderate network depth (4 layers) provided the best balance between feature extraction and overfitting, while larger batch sizes (64) stabilized training. Additionally, Adam and RMSprop optimizers significantly improved convergence compared to SGD, reinforcing the importance of adaptive learning rates in deep learning models.
 
 ---
 
@@ -172,9 +200,46 @@ GrabCut produced better results than the previous methods by leveraging iterativ
 - **Mean IoU:** 0.5569 
 - **Mean Dice:** 0.6968  
 
-
-
 ---
+
+## Mask Segmentation Using U-Net
+
+### Methodology
+
+1. **Data Preprocessing**: The images were resized and pixel values were normalized.
+
+2. **Feature Extraction**: We use a U-Net architecture to extract features at different spatial resolutions using an encoder-decoder structure with skip connections.
+
+3. **Model Training**: The U-Net model is trained using a loss function such as binary cross-entropy loss function using an Adam optimizer.
+
+4. **Segmentation Techniques**: The trained model predicts binary masks, which are post-processed to refine segmentations using thresholding.
+
+### Hyperparameters and Experiments
+
+- **Architecture**: The U-Net architecture used involved five successive double convolution layers followed by max-pooling layers with stride 2 for the encoder, and four transpose convolutions with skip connections. We tried increasing the complexity of the architecture by adding more layers, but there was no significant change in accuracy.
+
+- **Epochs**: The network was trained for 8 epochs as there seemed to be negligible change in validation loss beyond this point.
+
+- **Learning Rate**: We found a learning rate of 1e-3 to be optimal. For the optimal batch size of 32, we obtained the following scores for Dice and IoU on the test dataset:
+   
+   1. Learning Rate: 1e-2, Dice: 0.9417, IoU: 0.7997
+   2. Learning Rate: 1e-3, Dice: 0.9558, IoU: 0.8259
+   3. Learning Rate: 1e-4, Dice: 0.9529, IoU: 0.8129
+
+- **Batch Size**: The optimal batch size was 32. For the optimal learning rate of 1e-3, we obtained the following scores for Dice and IoU on the test dataset:
+   
+   1. Batch Size: 32, Dice: 0.9558, IoU: 0.8259
+   2. Batch Size: 64, Dice: 0.9529, IoU: 0.8183
+
+### Results
+
+- **Best IoU:** 0.9558
+- **Best Dice Score:** 0.8259
+
+## Analysis
+
+U-Net outperformed traditional methods, achieving 48% higher IoU than GrabCut due to its encoder-decoder structure and skip connections. Hyperparameter tuning played a crucial role, with a learning rate of 1e-3 and a batch size of 32 proving optimal. Training beyond 8 epochs showed diminishing returns, preventing overfitting. 
+
 ## How to Run the Code
 
 ### Steps to Execute
