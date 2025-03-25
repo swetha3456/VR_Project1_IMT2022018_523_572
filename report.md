@@ -1,5 +1,10 @@
 # Face Mask Detection, Classification, and Segmentation
 
+## Team members:
+1. Swetha Murali - IMT2022018
+2. Dyuthi Vivek - IMT2022523
+3. PVS Sukeerthi - IMT2022572
+
 ## Objective
 The objective of this project is to develop a computer vision solution that classifies and segments face masks in images. The project involves using handcrafted features with machine learning classifiers and deep learning techniques to perform classification and segmentation. Additionally, traditional region-based segmentation techniques are used to extract face mask regions.
 
@@ -11,10 +16,12 @@ The following datasets are used in this project:
 1. **Face Mask Detection Dataset**  
    - A labeled dataset containing images of people with and without face masks.
    - Accessible at: [Face Mask Detection Dataset](https://github.com/chandrikadeb7/Face-Mask-Detection/tree/master/dataset)
+   - The with mask images can be found at `Face-Mask-Detection/dataset/with_mask/` and the without mask images are at `Face-Mask-Detection/dataset/without_mask/`.
    
 2. **Masked Face Segmentation Dataset (MFSD)**  
    - A dataset containing ground truth face masks for segmentation tasks.
    - Accessible at: [MFSD Dataset](https://github.com/sadjadrz/MFSD)
+   - The train images can be found at `MSFD/1/face_crop/` and the ground truth labels are at `MSFD/1/face_crop_segmentation/`.
 
 ---
 
