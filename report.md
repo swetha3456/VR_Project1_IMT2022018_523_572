@@ -251,5 +251,5 @@ U-Net outperformed traditional methods, achieving 48% higher IoU than GrabCut du
    ```
 3. Download and save the data in the same directory.
 
-4. Run `part_A.ipynb` to `part_d.ipynb` to view the results.
+4. Run all the `.ipynb` notebooks to view the results.
 
