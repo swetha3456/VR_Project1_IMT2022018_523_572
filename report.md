@@ -120,4 +120,4 @@ GrabCut produced better results than the previous methods by leveraging iterativ
    ```
 3. Download and save the data in the same directory.
 
-4. Run `segmentation.ipynb` and `classification.ipynb` to view the results.
+4. Run `part_A.ipynb` to `part_d.ipynb` to view the results.
